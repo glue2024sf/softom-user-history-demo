@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ユーザー履歴 - 画面設計デモ</title>
+<style>
+  :root {
+    --slds-blue: #0176d3;
+    --slds-blue-dark: #014486;
+    --slds-green: #2e844a;
+    --slds-gray-1: #f3f3f3;
+    --slds-gray-2: #e5e5e5;
+    --slds-gray-3: #c9c9c9;
+    --slds-gray-text: #444;
+    --slds-red: #ea001e;
+    --slds-orange: #fe9339;
+    --slds-white: #fff;
+    --slds-border: #d8d8d8;
+    --slds-shadow: 0 2px 4px rgba(0,0,0,.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--slds-gray-1);
+    color: var(--slds-gray-text);
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  .header {
+    background: var(--slds-blue-dark);
+    color: #fff;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header .logo { width: 28px; height: 28px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:var(--slds-blue-dark); font-weight:800; font-size:13px;}
+  .header h1 { font-size: 16px; font-weight: 600; }
+  .header .tag { margin-left:auto; font-size:12px; background:rgba(255,255,255,.18); padding:4px 10px; border-radius:12px;}
+
+  /* タブ */
+  .tabs { background:#fff; border-bottom:1px solid var(--slds-border); padding:0 24px; display:flex; gap:4px; max-width:1180px; margin:0 auto;}
+  .tab { padding:12px 18px; font-size:14px; color:#5c5c5c; border-bottom:3px solid transparent; cursor:default;}
+  .tab.active { color:var(--slds-blue); border-bottom-color:var(--slds-blue); font-weight:700;}
+
+  .wrap { max-width:1180px; margin:0 auto; padding:20px 24px;}
+  .note { background:#fffbe6; border:1px solid #ffe58f; border-radius:6px; padding:10px 14px; font-size:12.5px; color:#7a6a00; margin-bottom:18px;}
+  .note b{color:#5c4f00;}
+
+  .card { background:var(--slds-white); border-radius:8px; box-shadow:var(--slds-shadow); margin-bottom:20px; overflow:hidden;}
+  .card-header { padding:14px 20px; border-bottom:1px solid var(--slds-border); display:flex; justify-content:space-between; align-items:center;}
+  .card-header h2 { font-size:15px; font-weight:700; color:#080707; display:flex; align-items:center; gap:8px;}
+  .card-header .icon { width:22px; height:22px; border-radius:5px; background:var(--slds-blue); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px;}
+  .card-body { padding:18px 20px;}
+
+  /* 基本情報グリッド */
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px 24px;}
+  .field label { display:block; font-size:11px; color:#8a8a8a; margin-bottom:2px;}
+  .field .val { font-size:14px; color:#181818; font-weight:600; border-bottom:1px dotted #e0e0e0; padding-bottom:3px;}
+  .field .val.link { color:var(--slds-blue);}
+
+  /* 契約履歴 */
+  .contract { border:1px solid var(--slds-border); border-radius:8px; margin-bottom:14px; overflow:hidden;}
+  .contract.ended { opacity:.72;}
+  .contract-head { display:flex; align-items:center; gap:12px; padding:12px 16px; background:#fafafa; border-bottom:1px solid var(--slds-border);}
+  .seq { background:var(--slds-blue-dark); color:#fff; font-weight:800; font-size:13px; padding:4px 10px; border-radius:6px; letter-spacing:1px;}
+  .contract-head .sys { font-weight:700; font-size:15px; color:#181818;}
+  .badge { font-size:11px; padding:3px 9px; border-radius:12px; font-weight:700;}
+  .badge.active { background:#e3f6e9; color:var(--slds-green);}
+  .badge.ended { background:#f0f0f0; color:#888;}
+  .badge.soon { background:#fff1e0; color:#b6541a;}
+  .contract-head .right { margin-left:auto; font-size:12px; color:#8a8a8a;}
+  .contract-body { padding:14px 16px; display:grid; grid-template-columns:repeat(5,1fr); gap:12px 18px;}
+  .contract-body .field .val { font-weight:600;}
+  .rental-bar-wrap { grid-column:1/-1; margin-top:4px;}
+  .rental-bar { height:8px; background:var(--slds-gray-2); border-radius:4px; overflow:hidden; margin-top:4px;}
+  .rental-bar > span { display:block; height:100%; background:linear-gradient(90deg,#2e844a,#54b16a);}
+  .rental-bar.soon > span { background:linear-gradient(90deg,#fe9339,#ffb066);}
+  .rental-meta { display:flex; justify-content:space-between; font-size:11px; color:#8a8a8a; margin-top:3px;}
+
+  /* ボタン */
+  .btn { border:none; border-radius:5px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer;}
+  .btn.primary { background:var(--slds-blue); color:#fff;}
+  .btn.neutral { background:#fff; color:#181818; border:1px solid var(--slds-border);}
+  .btn.danger { background:#fff; color:var(--slds-red); border:1px solid #f5c2c7;}
+
+  /* モーダル */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start; justify-content:center; padding-top:60px; z-index:50;}
+  .modal-overlay[hidden]{ display:none;}
+  .modal { background:#fff; border-radius:10px; width:560px; max-width:92vw; box-shadow:0 8px 30px rgba(0,0,0,.3); overflow:hidden;}
+  .modal-head { background:var(--slds-blue-dark); color:#fff; padding:14px 20px; display:flex; align-items:center; gap:10px;}
+  .modal-head h3 { font-size:15px; font-weight:700;}
+  .modal-head .x { margin-left:auto; cursor:pointer; font-size:18px; opacity:.85;}
+  .modal-body { padding:18px 20px;}
+  .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px;}
+  .modal-grid .full { grid-column:1/-1;}
+  .modal label { display:block; font-size:12px; color:#5c5c5c; margin-bottom:4px; font-weight:600;}
+  .modal label .req { color:var(--slds-red);}
+  .modal input, .modal select { width:100%; padding:8px 10px; border:1px solid var(--slds-border); border-radius:5px; font-size:13px;}
+  .modal .calc { background:#eef6ff; border:1px solid #cfe5fb; border-radius:6px; padding:8px 10px; font-size:12.5px; color:#014486;}
+  .modal-foot { padding:14px 20px; border-top:1px solid var(--slds-border); display:flex; justify-content:flex-end; gap:10px;}
+  .trigger-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .flow-hint { font-size:12px; color:#8a8a8a; margin-top:6px;}
+  .legend { font-size:11.5px; color:#8a8a8a; margin-top:8px;}
+  @media(max-width:880px){ .grid,.contract-body{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">SF</div>
+  <h1>ソフトム — ユーザー履歴（画面設計デモ）</h1>
+  <span class="tag">v0.1 / フィードバック用モック</span>
+</div>
+
+<div class="tabs">
+  <div class="tab">ホーム</div>
+  <div class="tab">取引先</div>
+  <div class="tab active">ユーザー履歴</div>
+  <div class="tab">商談</div>
+  <div class="tab">ケース</div>
+  <div class="tab">ライセンス</div>
+</div>
+
+<div class="wrap">
+
+  <div class="note">
+    <b>このデモの狙い：</b> 取引先（会社）とは独立した「ユーザー履歴」タブで、1社の中に積み上がる<b>契約単位の履歴（01 / 02 …）</b>を一覧化します。
+    受注時に履歴レコードを自動生成し、<b>システム名・ライセンス数・受注日・研修日・レンタル期間（研修日から5年で自動算出）</b>を管理する想定です。Excel運用からの移行イメージの確認用です。
+  </div>
+
+  <!-- 基本情報 -->
+  <div class="card">
+    <div class="card-header">
+      <h2><span class="icon">U</span>ユーザー履歴：株式会社サンプル製作所</h2>
+      <span style="font-size:12px;color:#8a8a8a;">ユーザーNo. U-000123</span>
+    </div>
+    <div class="card-body">
+      <div class="grid">
+        <div class="field"><label>取引先（会社）</label><div class="val link">株式会社サンプル製作所</div></div>
+        <div class="field"><label>顧客コード</label><div class="val">C-0457</div></div>
+        <div class="field"><label>業種</label><div class="val">製造業</div></div>
+        <div class="field"><label>営業担当</label><div class="val">根岸 哲也</div></div>
+        <div class="field"><label>主担当者</label><div class="val">山田 太郎（情報システム部）</div></div>
+        <div class="field"><label>連絡先</label><div class="val">03-1234-5678</div></div>
+        <div class="field"><label>契約数（有効 / 全体）</label><div class="val">2 / 3</div></div>
+        <div class="field"><label>合計ライセンス数</label><div class="val">45</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 契約履歴 -->
+  <div class="card">
+    <div class="card-header">
+      <h2><span class="icon">#</span>契約履歴（積み上げ）</h2>
+      <button class="btn primary" onclick="document.getElementById('orderModal').hidden=false">＋ 受注を登録</button>
+    </div>
+    <div class="card-body">
+
+      <!-- 02 有効 -->
+      <div class="contract">
+        <div class="contract-head">
+          <span class="seq">02</span>
+          <span class="sys">勤怠管理システム ATTEND</span>
+          <span class="badge active">利用中</span>
+          <span class="right">受注：2025/04/01</span>
+        </div>
+        <div class="contract-body">
+          <div class="field"><label>システム名</label><div class="val">勤怠管理システム ATTEND</div></div>
+          <div class="field"><label>ライセンス数</label><div class="val">30</div></div>
+          <div class="field"><label>受注日</label><div class="val">2025/04/01</div></div>
+          <div class="field"><label>研修日</label><div class="val">2025/05/15</div></div>
+          <div class="field"><label>レンタル期間（自動）</label><div class="val">2025/05/15 〜 2030/05/14</div></div>
+          <div class="rental-bar-wrap">
+            <div class="rental-bar"><span style="width:22%"></span></div>
+            <div class="rental-meta"><span>研修日 2025/05/15</span><span>残り約4年1ヶ月</span><span>満了 2030/05/14</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 01 有効 / 満了間近 -->
+      <div class="contract">
+        <div class="contract-head">
+          <span class="seq">01</span>
+          <span class="sys">販売管理システム SALES-PRO</span>
+          <span class="badge soon">満了間近</span>
+          <span class="right">受注：2020/10/01</span>
+        </div>
+        <div class="contract-body">
+          <div class="field"><label>システム名</label><div class="val">販売管理システム SALES-PRO</div></div>
+          <div class="field"><label>ライセンス数</label><div class="val">15</div></div>
+          <div class="field"><label>受注日</label><div class="val">2020/10/01</div></div>
+          <div class="field"><label>研修日</label><div class="val">2020/11/20</div></div>
+          <div class="field"><label>レンタル期間（自動）</label><div class="val">2020/11/20 〜 2025/11/19</div></div>
+          <div class="rental-bar-wrap">
+            <div class="rental-bar soon"><span style="width:90%"></span></div>
+            <div class="rental-meta"><span>研修日 2020/11/20</span><span>残り約5ヶ月（更新提案候補）</span><span>満了 2025/11/19</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 解約済み -->
+      <div class="contract ended">
+        <div class="contract-head">
+          <span class="seq">—</span>
+          <span class="sys">旧・在庫管理システム STOCK</span>
+          <span class="badge ended">解約済み</span>
+          <span class="right">解約：2024/03/31</span>
+        </div>
+        <div class="contract-body">
+          <div class="field"><label>システム名</label><div class="val">在庫管理システム STOCK</div></div>
+          <div class="field"><label>ライセンス数</label><div class="val">0（解約時 −10）</div></div>
+          <div class="field"><label>受注日</label><div class="val">2019/06/01</div></div>
+          <div class="field"><label>研修日</label><div class="val">2019/07/10</div></div>
+          <div class="field"><label>解約日</label><div class="val">2024/03/31</div></div>
+        </div>
+      </div>
+
+      <p class="legend">※ 01 / 02 … は同一取引先内の契約連番。新しい受注ほど上に積み上がります。解約時はライセンス数の減少を記録します。</p>
+    </div>
+  </div>
+
+  <!-- 自動化フローの説明 -->
+  <div class="card">
+    <div class="card-header"><h2><span class="icon">↻</span>受注・解約時の自動化（運用イメージ）</h2></div>
+    <div class="card-body">
+      <div class="trigger-row">
+        <button class="btn primary" onclick="document.getElementById('orderModal').hidden=false">商談を「受注」にする</button>
+        <span style="font-size:13px;">→ 入力ポップアップが起動 → 保存でユーザー履歴を自動生成</span>
+      </div>
+      <p class="flow-hint">① 商談フェーズを「受注」に変更 　② 必須項目（システム名・ライセンス数・受注日・研修日）の入力画面をポップアップ 　③ 保存でユーザー履歴に連番付きレコードを追加。研修日＋5年でレンタル満了日を自動算出。</p>
+      <div class="trigger-row" style="margin-top:14px;">
+        <button class="btn danger" onclick="alert('デモ：解約入力ポップアップ（ライセンス減少数・解約日）を表示します')">解約を登録する</button>
+        <span style="font-size:13px;">→ 解約日・減少ライセンス数を入力 → 該当契約のステータスを「解約済み」に更新</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 受注入力モーダル -->
+<div class="modal-overlay" id="orderModal" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h3>受注登録 — ユーザー履歴の作成</h3>
+      <span class="x" onclick="document.getElementById('orderModal').hidden=true">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="full">
+          <label>システム名 <span class="req">*</span></label>
+          <input type="text" placeholder="例：勤怠管理システム ATTEND">
+        </div>
+        <div>
+          <label>ライセンス数 <span class="req">*</span></label>
+          <input type="number" value="30">
+        </div>
+        <div>
+          <label>契約連番</label>
+          <input type="text" value="03（自動採番）" readonly>
+        </div>
+        <div>
+          <label>受注日 <span class="req">*</span></label>
+          <input type="date" value="2026-06-15">
+        </div>
+        <div>
+          <label>研修日 <span class="req">*</span></label>
+          <input type="date" value="2026-07-15">
+        </div>
+        <div class="full calc">
+          レンタル期間（自動算出）：<b>2026/07/15 〜 2031/07/14</b>（研修日から5年）
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn neutral" onclick="document.getElementById('orderModal').hidden=true">キャンセル</button>
+      <button class="btn primary" onclick="alert('デモ：ユーザー履歴レコード（連番03）を作成し、一覧の先頭に積み上げます');document.getElementById('orderModal').hidden=true">保存してユーザー履歴を作成</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ユーザー履歴 - 画面設計デモ</title>
+<title>ユーザー履歴 - 画面設計デモ v0.2</title>
 <style>
   :root {
     --slds-blue: #0176d3;
@@ -15,6 +15,7 @@
     --slds-gray-text: #444;
     --slds-red: #ea001e;
     --slds-orange: #fe9339;
+    --slds-purple: #5867e8;
     --slds-white: #fff;
     --slds-border: #d8d8d8;
     --slds-shadow: 0 2px 4px rgba(0,0,0,.1);
@@ -45,8 +46,20 @@
   .tab.active { color:var(--slds-blue); border-bottom-color:var(--slds-blue); font-weight:700;}
 
   .wrap { max-width:1180px; margin:0 auto; padding:20px 24px;}
-  .note { background:#fffbe6; border:1px solid #ffe58f; border-radius:6px; padding:10px 14px; font-size:12.5px; color:#7a6a00; margin-bottom:18px;}
+  .note { background:#fffbe6; border:1px solid #ffe58f; border-radius:6px; padding:10px 14px; font-size:12.5px; color:#7a6a00; margin-bottom:14px;}
   .note b{color:#5c4f00;}
+
+  /* 提案サマリ / 確認中パネル */
+  .panel { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px;}
+  .panel .box { border-radius:8px; padding:12px 16px; font-size:12.5px;}
+  .panel .box h4 { font-size:12px; margin-bottom:6px; letter-spacing:.04em;}
+  .panel .box ul { margin:0; padding-left:18px;}
+  .panel .box li { margin:2px 0;}
+  .box.propose { background:#eef6ff; border:1px solid #cfe5fb; color:#0b3a63;}
+  .box.propose h4{ color:#014486;}
+  .box.confirm { background:#fdf0ff; border:1px solid #ecc8f5; color:#5a2169;}
+  .box.confirm h4{ color:#7a2a8f;}
+  @media(max-width:880px){ .panel{grid-template-columns:1fr;} }
 
   .card { background:var(--slds-white); border-radius:8px; box-shadow:var(--slds-shadow); margin-bottom:20px; overflow:hidden;}
   .card-header { padding:14px 20px; border-bottom:1px solid var(--slds-border); display:flex; justify-content:space-between; align-items:center;}
@@ -63,32 +76,51 @@
   /* 契約履歴 */
   .contract { border:1px solid var(--slds-border); border-radius:8px; margin-bottom:14px; overflow:hidden;}
   .contract.ended { opacity:.72;}
-  .contract-head { display:flex; align-items:center; gap:12px; padding:12px 16px; background:#fafafa; border-bottom:1px solid var(--slds-border);}
+  .contract-head { display:flex; align-items:center; gap:12px; padding:12px 16px; background:#fafafa; border-bottom:1px solid var(--slds-border); flex-wrap:wrap;}
   .seq { background:var(--slds-blue-dark); color:#fff; font-weight:800; font-size:13px; padding:4px 10px; border-radius:6px; letter-spacing:1px;}
   .contract-head .sys { font-weight:700; font-size:15px; color:#181818;}
   .badge { font-size:11px; padding:3px 9px; border-radius:12px; font-weight:700;}
   .badge.active { background:#e3f6e9; color:var(--slds-green);}
   .badge.ended { background:#f0f0f0; color:#888;}
   .badge.soon { background:#fff1e0; color:#b6541a;}
+  .badge.add { background:#eef0ff; color:var(--slds-purple);}
   .contract-head .right { margin-left:auto; font-size:12px; color:#8a8a8a;}
   .contract-body { padding:14px 16px; display:grid; grid-template-columns:repeat(5,1fr); gap:12px 18px;}
   .contract-body .field .val { font-weight:600;}
+  .pill { display:inline-block; font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:10px; margin-left:6px; vertical-align:middle;}
+  .pill.fix { background:#e3f6e9; color:var(--slds-green);}
+  .pill.tmp { background:#fff1e0; color:#b6541a;}
   .rental-bar-wrap { grid-column:1/-1; margin-top:4px;}
   .rental-bar { height:8px; background:var(--slds-gray-2); border-radius:4px; overflow:hidden; margin-top:4px;}
   .rental-bar > span { display:block; height:100%; background:linear-gradient(90deg,#2e844a,#54b16a);}
   .rental-bar.soon > span { background:linear-gradient(90deg,#fe9339,#ffb066);}
   .rental-meta { display:flex; justify-content:space-between; font-size:11px; color:#8a8a8a; margin-top:3px;}
 
+  /* 納品・検収タイムライン */
+  .dc-wrap { grid-column:1/-1; margin-top:8px; border-top:1px dashed #e3e3e3; padding-top:10px;}
+  .dc-title { font-size:12px; font-weight:700; color:#5c5c5c; margin-bottom:8px; display:flex; align-items:center; gap:8px;}
+  .dc-title .mini { font-size:10.5px; font-weight:600; color:#8a8a8a; background:#f3f3f3; border-radius:10px; padding:1px 8px;}
+  table.dc { width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.dc th { text-align:left; font-size:11px; color:#8a8a8a; font-weight:600; padding:4px 8px; border-bottom:1px solid #ececec;}
+  table.dc td { padding:6px 8px; border-bottom:1px solid #f2f2f2; color:#181818;}
+  .st { font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;}
+  .st.done { background:#e3f6e9; color:var(--slds-green);}     /* 検収済 */
+  .st.wait { background:#eef6ff; color:#0a5ca8;}               /* 検収待ち */
+  .st.back { background:#fde7ea; color:var(--slds-red);}       /* 差し戻し */
+  .st.redo { background:#fff1e0; color:#b6541a;}               /* 再検収 */
+  .st.ship { background:#f0eefe; color:var(--slds-purple);}    /* 納品済 */
+
   /* ボタン */
   .btn { border:none; border-radius:5px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer;}
   .btn.primary { background:var(--slds-blue); color:#fff;}
   .btn.neutral { background:#fff; color:#181818; border:1px solid var(--slds-border);}
   .btn.danger { background:#fff; color:var(--slds-red); border:1px solid #f5c2c7;}
+  .btn.sm { padding:5px 12px; font-size:12px;}
 
   /* モーダル */
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start; justify-content:center; padding-top:60px; z-index:50;}
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start; justify-content:center; padding-top:54px; z-index:50;}
   .modal-overlay[hidden]{ display:none;}
-  .modal { background:#fff; border-radius:10px; width:560px; max-width:92vw; box-shadow:0 8px 30px rgba(0,0,0,.3); overflow:hidden;}
+  .modal { background:#fff; border-radius:10px; width:580px; max-width:92vw; box-shadow:0 8px 30px rgba(0,0,0,.3); overflow:hidden;}
   .modal-head { background:var(--slds-blue-dark); color:#fff; padding:14px 20px; display:flex; align-items:center; gap:10px;}
   .modal-head h3 { font-size:15px; font-weight:700;}
   .modal-head .x { margin-left:auto; cursor:pointer; font-size:18px; opacity:.85;}
@@ -99,6 +131,7 @@
   .modal label .req { color:var(--slds-red);}
   .modal input, .modal select { width:100%; padding:8px 10px; border:1px solid var(--slds-border); border-radius:5px; font-size:13px;}
   .modal .calc { background:#eef6ff; border:1px solid #cfe5fb; border-radius:6px; padding:8px 10px; font-size:12.5px; color:#014486;}
+  .modal .hint { font-size:11.5px; color:#8a8a8a; margin-top:4px;}
   .modal-foot { padding:14px 20px; border-top:1px solid var(--slds-border); display:flex; justify-content:flex-end; gap:10px;}
   .trigger-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
   .flow-hint { font-size:12px; color:#8a8a8a; margin-top:6px;}
@@ -111,14 +144,14 @@
 <div class="header">
   <div class="logo">SF</div>
   <h1>ソフトム — ユーザー履歴（画面設計デモ）</h1>
-  <span class="tag">v0.1 / フィードバック用モック</span>
+  <span class="tag">v0.2 / 納品・検収＋研修日反映</span>
 </div>
 
 <div class="tabs">
   <div class="tab">ホーム</div>
   <div class="tab">取引先</div>
-  <div class="tab active">ユーザー履歴</div>
   <div class="tab">商談</div>
+  <div class="tab active">ユーザー履歴</div>
   <div class="tab">ケース</div>
   <div class="tab">ライセンス</div>
 </div>
@@ -126,8 +159,29 @@
 <div class="wrap">
 
   <div class="note">
-    <b>このデモの狙い：</b> 取引先（会社）とは独立した「ユーザー履歴」タブで、1社の中に積み上がる<b>契約単位の履歴（01 / 02 …）</b>を一覧化します。
-    受注時に履歴レコードを自動生成し、<b>システム名・ライセンス数・受注日・研修日・レンタル期間（研修日から5年で自動算出）</b>を管理する想定です。Excel運用からの移行イメージの確認用です。
+    <b>このデモの狙い：</b> 受注した<b>商談に紐づく専用オブジェクト「ユーザー履歴」</b>で、システム単位の契約と<b>納品・検収を時系列で管理</b>します。
+    1つの契約に対し<b>分納（複数回納品）</b>や<b>検収の差し戻し→再検収</b>が起きても、子レコードで履歴を残せる構成です。
+    <b>研修日＝売上計上日</b>とし、研修日が確定するまで売上は認識しません（受注時は仮入力）。レンタル期間は研修日から5年で自動算出、追加ライセンスは個別開始日から5年で別契約として管理します。
+  </div>
+
+  <div class="panel">
+    <div class="box propose">
+      <h4>▍こちらの提案（6/15合意 ＋ 6/18方針）</h4>
+      <ul>
+        <li>納品・検収は<b>商談に紐づく子レコード（ユーザー履歴）</b>で時系列管理</li>
+        <li>研修日を<b>必須＝売上計上日</b>（仮入力→研修完了で確定）</li>
+        <li>システム単位の<b>合計ライセンス＋個別明細</b>を両方表示</li>
+        <li>追加ライセンスは<b>個別開始日から5年</b>の別契約</li>
+      </ul>
+    </div>
+    <div class="box confirm">
+      <h4>▍本日すり合わせたい確認点（2問）</h4>
+      <ul>
+        <li><b>Q1.</b> 1商談につき納品は基本1回（一括）か、<b>分納</b>が発生するか</li>
+        <li><b>Q2.</b> 検収の<b>差し戻し・再検収</b>を記録に残したいニーズはあるか</li>
+        <li>→ 回答で納品・検収の<b>項目構成／必須設定</b>が確定します</li>
+      </ul>
+    </div>
   </div>
 
   <!-- 基本情報 -->
@@ -140,12 +194,12 @@
       <div class="grid">
         <div class="field"><label>取引先（会社）</label><div class="val link">株式会社サンプル製作所</div></div>
         <div class="field"><label>顧客コード</label><div class="val">C-0457</div></div>
-        <div class="field"><label>業種</label><div class="val">製造業</div></div>
         <div class="field"><label>営業担当</label><div class="val">根岸 哲也</div></div>
         <div class="field"><label>主担当者</label><div class="val">山田 太郎（情報システム部）</div></div>
-        <div class="field"><label>連絡先</label><div class="val">03-1234-5678</div></div>
-        <div class="field"><label>契約数（有効 / 全体）</label><div class="val">2 / 3</div></div>
-        <div class="field"><label>合計ライセンス数</label><div class="val">45</div></div>
+        <div class="field"><label>有効契約（システム）</label><div class="val">2 件</div></div>
+        <div class="field"><label>合計ライセンス（有効）</label><div class="val">50</div></div>
+        <div class="field"><label>未検収</label><div class="val link">1 件</div></div>
+        <div class="field"><label>満了間近（90日以内）</label><div class="val link">1 件</div></div>
       </div>
     </div>
   </div>
@@ -153,49 +207,100 @@
   <!-- 契約履歴 -->
   <div class="card">
     <div class="card-header">
-      <h2><span class="icon">#</span>契約履歴（積み上げ）</h2>
+      <h2><span class="icon">#</span>契約・納品検収履歴（商談に紐づく積み上げ）</h2>
       <button class="btn primary" onclick="document.getElementById('orderModal').hidden=false">＋ 受注を登録</button>
     </div>
     <div class="card-body">
 
-      <!-- 02 有効 -->
+      <!-- 02 有効 / 分納＋差し戻し→再検収の例 -->
       <div class="contract">
         <div class="contract-head">
           <span class="seq">02</span>
           <span class="sys">勤怠管理システム ATTEND</span>
           <span class="badge active">利用中</span>
-          <span class="right">受注：2025/04/01</span>
+          <span class="badge add">追加ライセンス</span>
+          <span class="right">商談：OPP-2025-0412／受注 2025/04/01</span>
         </div>
         <div class="contract-body">
           <div class="field"><label>システム名</label><div class="val">勤怠管理システム ATTEND</div></div>
-          <div class="field"><label>ライセンス数</label><div class="val">30</div></div>
+          <div class="field"><label>ライセンス数</label><div class="val">35（初回30＋追加5）</div></div>
           <div class="field"><label>受注日</label><div class="val">2025/04/01</div></div>
-          <div class="field"><label>研修日</label><div class="val">2025/05/15</div></div>
+          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2025/05/15 <span class="pill fix">確定</span></div></div>
           <div class="field"><label>レンタル期間（自動）</label><div class="val">2025/05/15 〜 2030/05/14</div></div>
           <div class="rental-bar-wrap">
             <div class="rental-bar"><span style="width:22%"></span></div>
             <div class="rental-meta"><span>研修日 2025/05/15</span><span>残り約4年1ヶ月</span><span>満了 2030/05/14</span></div>
           </div>
+
+          <!-- 納品・検収タイムライン -->
+          <div class="dc-wrap">
+            <div class="dc-title">納品・検収履歴 <span class="mini">分納あり</span> <span class="mini">差し戻し→再検収あり</span>
+              <button class="btn neutral sm" style="margin-left:auto" onclick="document.getElementById('dcModal').hidden=false">＋ 納品/検収を記録</button>
+            </div>
+            <table class="dc">
+              <thead><tr><th>#</th><th>区分</th><th>納品日</th><th>検収日</th><th>数量/対象</th><th>ステータス</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>初回納品</td><td>2025/05/15</td><td>2025/05/20</td><td>30式</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>2</td><td>追加納品（分納）</td><td>2025/09/01</td><td>2025/09/03</td><td>+5式</td><td><span class="st back">差し戻し</span></td></tr>
+                <tr><td>3</td><td>再検収</td><td>2025/09/10</td><td>2025/09/12</td><td>+5式</td><td><span class="st done">検収済</span></td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- 01 有効 / 満了間近 -->
+      <!-- 01 有効 / 満了間近 / 一括・検収待ち -->
       <div class="contract">
         <div class="contract-head">
           <span class="seq">01</span>
           <span class="sys">販売管理システム SALES-PRO</span>
           <span class="badge soon">満了間近</span>
-          <span class="right">受注：2020/10/01</span>
+          <span class="right">商談：OPP-2020-0915／受注 2020/10/01</span>
         </div>
         <div class="contract-body">
           <div class="field"><label>システム名</label><div class="val">販売管理システム SALES-PRO</div></div>
           <div class="field"><label>ライセンス数</label><div class="val">15</div></div>
           <div class="field"><label>受注日</label><div class="val">2020/10/01</div></div>
-          <div class="field"><label>研修日</label><div class="val">2020/11/20</div></div>
+          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2020/11/20 <span class="pill fix">確定</span></div></div>
           <div class="field"><label>レンタル期間（自動）</label><div class="val">2020/11/20 〜 2025/11/19</div></div>
           <div class="rental-bar-wrap">
             <div class="rental-bar soon"><span style="width:90%"></span></div>
             <div class="rental-meta"><span>研修日 2020/11/20</span><span>残り約5ヶ月（更新提案候補）</span><span>満了 2025/11/19</span></div>
+          </div>
+          <div class="dc-wrap">
+            <div class="dc-title">納品・検収履歴 <span class="mini">一括</span></div>
+            <table class="dc">
+              <thead><tr><th>#</th><th>区分</th><th>納品日</th><th>検収日</th><th>数量/対象</th><th>ステータス</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>一括納品</td><td>2020/11/20</td><td>—</td><td>15式</td><td><span class="st done">検収済</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 受注直後 / 研修日仮・検収待ち -->
+      <div class="contract">
+        <div class="contract-head">
+          <span class="seq">03</span>
+          <span class="sys">在庫管理システム STOCK-NEO</span>
+          <span class="badge active">利用中</span>
+          <span class="right">商談：OPP-2026-0188／受注 2026/06/01</span>
+        </div>
+        <div class="contract-body">
+          <div class="field"><label>システム名</label><div class="val">在庫管理システム STOCK-NEO</div></div>
+          <div class="field"><label>ライセンス数</label><div class="val">10</div></div>
+          <div class="field"><label>受注日</label><div class="val">2026/06/01</div></div>
+          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2026/07/10 <span class="pill tmp">仮</span></div></div>
+          <div class="field"><label>レンタル期間（自動）</label><div class="val">研修日確定後に算出</div></div>
+          <div class="dc-wrap">
+            <div class="dc-title">納品・検収履歴 <span class="mini">検収待ち＝売上未計上</span></div>
+            <table class="dc">
+              <thead><tr><th>#</th><th>区分</th><th>納品日</th><th>検収日</th><th>数量/対象</th><th>ステータス</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>初回納品</td><td>2026/06/28</td><td>—</td><td>10式</td><td><span class="st wait">検収待ち</span></td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -204,32 +309,36 @@
       <div class="contract ended">
         <div class="contract-head">
           <span class="seq">—</span>
-          <span class="sys">旧・在庫管理システム STOCK</span>
+          <span class="sys">旧・基幹システム LEGACY</span>
           <span class="badge ended">解約済み</span>
-          <span class="right">解約：2024/03/31</span>
+          <span class="right">商談：OPP-2019-0601／解約 2024/03/31</span>
         </div>
         <div class="contract-body">
-          <div class="field"><label>システム名</label><div class="val">在庫管理システム STOCK</div></div>
+          <div class="field"><label>システム名</label><div class="val">基幹システム LEGACY</div></div>
           <div class="field"><label>ライセンス数</label><div class="val">0（解約時 −10）</div></div>
           <div class="field"><label>受注日</label><div class="val">2019/06/01</div></div>
-          <div class="field"><label>研修日</label><div class="val">2019/07/10</div></div>
+          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2019/07/10 <span class="pill fix">確定</span></div></div>
           <div class="field"><label>解約日</label><div class="val">2024/03/31</div></div>
         </div>
       </div>
 
-      <p class="legend">※ 01 / 02 … は同一取引先内の契約連番。新しい受注ほど上に積み上がります。解約時はライセンス数の減少を記録します。</p>
+      <p class="legend">※ 01 / 02 … は同一取引先内の契約連番（システム＝受注商談単位）。新しい受注ほど上に積み上がります。各契約の下に納品・検収を時系列で保持し、分納・差し戻し→再検収にも対応。研修日が確定するまで売上は計上しません。</p>
     </div>
   </div>
 
   <!-- 自動化フローの説明 -->
   <div class="card">
-    <div class="card-header"><h2><span class="icon">↻</span>受注・解約時の自動化（運用イメージ）</h2></div>
+    <div class="card-header"><h2><span class="icon">↻</span>受注〜納品検収〜解約の自動化（運用イメージ）</h2></div>
     <div class="card-body">
       <div class="trigger-row">
         <button class="btn primary" onclick="document.getElementById('orderModal').hidden=false">商談を「受注」にする</button>
         <span style="font-size:13px;">→ 入力ポップアップが起動 → 保存でユーザー履歴を自動生成</span>
       </div>
-      <p class="flow-hint">① 商談フェーズを「受注」に変更 　② 必須項目（システム名・ライセンス数・受注日・研修日）の入力画面をポップアップ 　③ 保存でユーザー履歴に連番付きレコードを追加。研修日＋5年でレンタル満了日を自動算出。</p>
+      <p class="flow-hint">① 商談フェーズを「受注」に変更　② 必須項目（システム名・ライセンス数・受注日・<b>研修日＝売上計上日（仮可）</b>）の入力画面をポップアップ　③ 保存で商談に紐づくユーザー履歴を連番付きで作成。研修日確定で<b>レンタル満了日（＋5年）を自動算出し売上を計上</b>。</p>
+      <div class="trigger-row" style="margin-top:14px;">
+        <button class="btn neutral" onclick="document.getElementById('dcModal').hidden=false">納品 / 検収を記録する</button>
+        <span style="font-size:13px;">→ 納品日・検収日・ステータスを追加（分納・差し戻し→再検収は行を増やして時系列で記録）</span>
+      </div>
       <div class="trigger-row" style="margin-top:14px;">
         <button class="btn danger" onclick="alert('デモ：解約入力ポップアップ（ライセンス減少数・解約日）を表示します')">解約を登録する</button>
         <span style="font-size:13px;">→ 解約日・減少ライセンス数を入力 → 該当契約のステータスを「解約済み」に更新</span>
@@ -254,28 +363,82 @@
         </div>
         <div>
           <label>ライセンス数 <span class="req">*</span></label>
-          <input type="number" value="30">
+          <input type="number" value="10">
         </div>
         <div>
           <label>契約連番</label>
-          <input type="text" value="03（自動採番）" readonly>
+          <input type="text" value="04（自動採番）" readonly>
         </div>
         <div>
           <label>受注日 <span class="req">*</span></label>
-          <input type="date" value="2026-06-15">
+          <input type="date" value="2026-06-22">
         </div>
         <div>
-          <label>研修日 <span class="req">*</span></label>
-          <input type="date" value="2026-07-15">
+          <label>研修日（＝売上計上日）<span class="req">*</span></label>
+          <input type="date" value="2026-07-22">
+        </div>
+        <div>
+          <label>研修日ステータス</label>
+          <select><option>仮（受注時）</option><option>確定（研修完了）</option></select>
         </div>
         <div class="full calc">
-          レンタル期間（自動算出）：<b>2026/07/15 〜 2031/07/14</b>（研修日から5年）
+          レンタル期間（自動算出）：<b>研修日確定で 研修日〜＋5年</b>を自動セット。<span style="color:#7a6a00;">研修日が「仮」の間は売上未計上。</span>
         </div>
       </div>
     </div>
     <div class="modal-foot">
       <button class="btn neutral" onclick="document.getElementById('orderModal').hidden=true">キャンセル</button>
-      <button class="btn primary" onclick="alert('デモ：ユーザー履歴レコード（連番03）を作成し、一覧の先頭に積み上げます');document.getElementById('orderModal').hidden=true">保存してユーザー履歴を作成</button>
+      <button class="btn primary" onclick="alert('デモ：商談に紐づくユーザー履歴（連番04）を作成し、一覧の先頭に積み上げます');document.getElementById('orderModal').hidden=true">保存してユーザー履歴を作成</button>
+    </div>
+  </div>
+</div>
+
+<!-- 納品・検収モーダル -->
+<div class="modal-overlay" id="dcModal" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h3>納品 / 検収の記録</h3>
+      <span class="x" onclick="document.getElementById('dcModal').hidden=true">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div>
+          <label>区分 <span class="req">*</span></label>
+          <select>
+            <option>初回納品</option>
+            <option>追加納品（分納）</option>
+            <option>再検収</option>
+          </select>
+        </div>
+        <div>
+          <label>ステータス <span class="req">*</span></label>
+          <select>
+            <option>納品済</option>
+            <option>検収待ち</option>
+            <option>検収済</option>
+            <option>差し戻し</option>
+          </select>
+        </div>
+        <div>
+          <label>納品日</label>
+          <input type="date" value="2026-06-28">
+        </div>
+        <div>
+          <label>検収日</label>
+          <input type="date">
+        </div>
+        <div class="full">
+          <label>数量 / 対象</label>
+          <input type="text" placeholder="例：+5式、10式 ほか">
+        </div>
+        <div class="full">
+          <p class="hint">※ 分納・差し戻し→再検収は、この記録を<b>行（子レコード）として追加</b>することで時系列に残ります。Q1/Q2の確認結果で、この区分・ステータスの選択肢と必須項目を確定します。</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn neutral" onclick="document.getElementById('dcModal').hidden=true">キャンセル</button>
+      <button class="btn primary" onclick="alert('デモ：納品・検収レコードを1行追加し、契約のタイムラインに反映します');document.getElementById('dcModal').hidden=true">記録を追加</button>
     </div>
   </div>
 </div>

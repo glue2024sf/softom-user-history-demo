@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ユーザー履歴 - 画面設計デモ v0.4</title>
+<title>ユーザー履歴 - 画面設計デモ v0.5（実データ版）</title>
 <style>
   :root {
     --slds-blue: #0176d3;
@@ -155,7 +155,7 @@
 <div class="header">
   <div class="logo">SF</div>
   <h1>ソフトム — ユーザー履歴（画面設計デモ）</h1>
-  <span class="tag">v0.4 / 受注区分対応＋6か月限定ライセンス（阪食品サンプル反映）</span>
+  <span class="tag">v0.5 / 名阪食品 実データ反映（保守・支払方法・販売店・パッケージ区分を追加）</span>
 </div>
 
 <div class="tabs">
@@ -170,31 +170,26 @@
 <div class="wrap">
 
   <div class="note">
-    <b>このデモの狙い：</b> 受注した<b>商談に紐づく専用オブジェクト「ユーザー履歴」</b>を1つに統一し、<b>受注区分（パッケージ／カスタマイズ／サービス管理）</b>で表示・項目を出し分けます。
-    パッケージは<b>研修日＝売上計上日／レンタル5年</b>、カスタマイズ・サービス管理は<b>検収完了日＝売上計上日</b>。各受注の下に<b>納品・検収（またはカスタマイズ内容）を時系列の子レコード</b>で残します。
+    <b>このデモの狙い：</b> 名阪食品さん（ユーザーNo.655）の<b>実際のユーザー履歴データ</b>を、商談に紐づく専用オブジェクト「ユーザー履歴」に載せた画面イメージです。<b>受注区分（パッケージ／カスタマイズ／サービス管理）</b>で表示・項目を出し分け、<b>パッケージ製品区分・保守（ソフト/ハード）・支払方法・販売店</b>も保持します。
+    各受注の下に<b>カスタマイズ内容や保守・検収を時系列の子レコード</b>で残し、<b>6か月限定ライセンスの解約→再契約サイクル</b>も履歴で追えます。
   </div>
 
   <div class="panel">
     <div class="box propose">
-      <h4>▍確定事項の反映（6/22 回答ベース）</h4>
+      <h4>▍実データで確認できたこと（名阪食品サンプル）</h4>
       <ul>
-        <li><span class="ok">A2 反映：</span>検収の<b>差し戻し→再検収は運用上なし</b> → ステータスから除外</li>
-        <li><span class="ok">A1 反映：</span>納品は基本1回。<b>大型案件のみ「分割検収」</b>が発生 → 明細行で対応</li>
-        <li>検収は基本<b>1回（分割検収・分割納品の有無で承認）</b>。差戻しは不要</li>
-        <li><b>受注区分</b>を1項目で持ち、区分により表示項目（ライセンス/レンタル or 内容明細）を切替</li>
-        <li><span class="ok">阪食品サンプル反映：</span><b>メニューデザイナーNEXTのみ6か月限定ライセンス</b>（レンタル6か月・解約→再契約サイクル）を <b>05</b> で表現</li>
+        <li><span class="ok">6か月限定ライセンス：</span>NEXT10式が<b>実際に3期繰り返し</b>（24905→24962→25030）。各期=別受注・期間明記 → デモの作りと一致</li>
+        <li><span class="ok">サービス管理：</span>旧台帳は受注NO欄に<b>「サービス管理」と直接記載</b>（データ変換/PG改造・小額）→ 受注区分で明示化</li>
+        <li><span class="ok">パッケージ＋カスタマイズ：</span>1受注に<b>カスタマイズ明細が縦に複数</b>（NEXT35式＋献/発/マ/仕…）→ 推奨A（1受注+内容明細）と一致</li>
       </ul>
     </div>
     <div class="box confirm">
-      <h4>▍本日すり合わせたい確認点（2問）</h4>
+      <h4>▍本日すり合わせたい確認点（実データで追加発覚）</h4>
       <ul>
-        <li><b>Q1. カスタマイズの明細構成</b>（受注件数が最多）<br>
-          <span class="opt reco">推奨A：1受注=1レコード＋内容明細(子)</span>
-          <span class="opt">代替B：カスタマイズごとに1明細（グループ化しない）</span></li>
-        <li><b>Q2. サービス管理の持ち方</b>（小改修・データ変換など独自区分）<br>
-          <span class="opt reco">推奨Y：受注区分「サービス管理」で括る（同一オブジェクト内）</span>
-          <span class="opt">代替X：1件ずつ完全フラットなレコード</span></li>
-        <li>→ 下の<b>02（カスタマイズ）・04（サービス管理）</b>が推奨案の見え方です</li>
+        <li><b>Q1. パッケージ区分フラグ</b>（宮本さん要望）：カスタマイズ/サービスが<b>どの製品向けか</b>（ソフトメリット/メニューデザイナーNEXT/メニューリンク）→ 各カードに「対象製品」を追加</li>
+        <li><b>Q2. 保守（ソフト/ハード）</b>：年額保守料・契約日・解約日を<b>受注に保持</b>（実データの主要要素）→ どこまで管理するか</li>
+        <li><b>Q3. 支払方法・販売店</b>：現金/リース/<b>SOLPAL（クレジット引落）</b>、<b>代理店（エイコー）経由</b>を項目化</li>
+        <li><b>Q4. 受注内容のパース</b>：「NEXT10式6カ月限定…2023/12/1〜」から品名/数量/期間を分離（移行ロジック）</li>
       </ul>
     </div>
   </div>
@@ -202,19 +197,19 @@
   <!-- 基本情報 -->
   <div class="card">
     <div class="card-header">
-      <h2><span class="icon">U</span>ユーザー履歴：株式会社サンプル製作所</h2>
-      <span style="font-size:12px;color:#8a8a8a;">ユーザーNo. U-000123</span>
+      <h2><span class="icon">U</span>ユーザー履歴：名阪食品株式会社</h2>
+      <span style="font-size:12px;color:#8a8a8a;">ユーザーNo. 655</span>
     </div>
     <div class="card-body">
       <div class="grid">
-        <div class="field"><label>取引先（会社）</label><div class="val link">株式会社サンプル製作所</div></div>
-        <div class="field"><label>顧客コード</label><div class="val">C-0457</div></div>
-        <div class="field"><label>営業担当</label><div class="val">根岸 哲也</div></div>
-        <div class="field"><label>主担当者</label><div class="val">山田 太郎（情報システム部）</div></div>
-        <div class="field"><label>受注（パッケージ／カスタ／サービス）</label><div class="val">2 / 2 / 1 件</div></div>
-        <div class="field"><label>合計ライセンス（有効）</label><div class="val">18</div></div>
-        <div class="field"><label>未検収</label><div class="val link">2 件</div></div>
-        <div class="field"><label>満了間近（90日以内）</label><div class="val link">2 件</div></div>
+        <div class="field"><label>取引先（会社）</label><div class="val link">名阪食品株式会社</div></div>
+        <div class="field"><label>販売店（代理店）</label><div class="val">株式会社エイコー</div></div>
+        <div class="field"><label>営業担当</label><div class="val">根岸</div></div>
+        <div class="field"><label>主力製品</label><div class="val">メニューデザイナー NEXT</div></div>
+        <div class="field"><label>受注（パッケージ／カスタ／サービス）</label><div class="val">6 / 9 / 3 件</div></div>
+        <div class="field"><label>有効ライセンス（NEXT）</label><div class="val">35式＋追加</div></div>
+        <div class="field"><label>SOLPAL引落（税込・現在）</label><div class="val">¥99,225</div></div>
+        <div class="field"><label>6か月限定ライセンス</label><div class="val link">第3期 利用中</div></div>
       </div>
     </div>
   </div>
@@ -227,180 +222,140 @@
     </div>
     <div class="card-body">
 
-      <!-- 05 メニューデザイナーNEXT 6か月限定ライセンス（解約→再契約サイクル｜阪食品サンプル反映）-->
+      <!-- 6か月限定ライセンス（解約→再契約サイクル｜実データ 24905/24962/25030）-->
       <div class="contract kind-pkg">
         <div class="contract-head">
-          <span class="seq">05</span>
-          <span class="sys">メニューデザイナー NEXT（6か月限定ライセンス）</span>
+          <span class="seq">L</span>
+          <span class="sys">メニューデザイナー NEXT 10式（6か月限定ライセンス）</span>
           <span class="badge k-pkg">パッケージ／ライセンス</span>
           <span class="badge soon">満了間近</span>
-          <span class="right">商談：OPP-2026-0251／現契約 2026/04/01〜</span>
+          <span class="right">受注NO 25030／現契約 2024/12/01〜</span>
         </div>
         <div class="contract-body">
           <div class="field"><label>受注区分</label><div class="val">パッケージ（6か月限定ライセンス）</div></div>
-          <div class="field"><label>システム名</label><div class="val">メニューデザイナー NEXT</div></div>
-          <div class="field"><label>ライセンス数</label><div class="val">3</div></div>
-          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2026/04/05 <span class="pill fix">確定</span></div></div>
-          <div class="field"><label>レンタル期間（6か月・自動）</label><div class="val">2026/04/01 〜 2026/09/30</div></div>
+          <div class="field"><label>対象製品</label><div class="val">メニューデザイナー NEXT</div></div>
+          <div class="field"><label>ライセンス数</label><div class="val">10式</div></div>
+          <div class="field"><label>支払方法</label><div class="val">SOLPAL（クレジット引落）</div></div>
+          <div class="field"><label>レンタル期間（6か月・現契約）</label><div class="val">2024/12/01 〜 2025/06/30</div></div>
           <div class="rental-bar-wrap">
-            <div class="rental-bar soon"><span style="width:80%"></span></div>
-            <div class="rental-meta"><span>現契約 2026/04/01</span><span>残り約3ヶ月（次期更新提案）</span><span>満了 2026/09/30</span></div>
+            <div class="rental-bar soon"><span style="width:85%"></span></div>
+            <div class="rental-meta"><span>現契約 2024/12/01</span><span>残りわずか（次期更新提案）</span><span>満了 2025/06/30</span></div>
           </div>
           <div class="dc-wrap">
-            <div class="dc-title">契約更新履歴 <span class="mini">6か月サイクル：解約→次の6か月を再契約</span></div>
+            <div class="dc-title">契約更新履歴 <span class="mini">6か月サイクル：解約→次の6か月を再契約</span> <span class="mini">実データ反映</span></div>
             <table class="dc">
-              <thead><tr><th>期</th><th>契約期間</th><th>解約日</th><th>ライセンス</th><th>ステータス</th></tr></thead>
+              <thead><tr><th>期</th><th>受注NO</th><th>契約期間</th><th>受注金額</th><th>保守料</th><th>ステータス</th></tr></thead>
               <tbody>
-                <tr><td>第1期</td><td>2025/10/01 〜 2026/03/31</td><td>2026/03/31</td><td>3</td><td><span class="st done">解約済（再契約）</span></td></tr>
-                <tr><td>第2期</td><td>2026/04/01 〜 2026/09/30</td><td>—</td><td>3</td><td><span class="st part">利用中（満了間近）</span></td></tr>
+                <tr><td>第1期</td><td>24905</td><td>2023/12/01 〜 2024/05/31</td><td>¥600,000</td><td>0</td><td><span class="st done">解約済（再契約）</span></td></tr>
+                <tr><td>第2期</td><td>24962</td><td>2024/06/01 〜 2024/11/30</td><td>¥430,000</td><td>¥1,700</td><td><span class="st done">解約済（再契約）</span></td></tr>
+                <tr><td>第3期</td><td>25030</td><td>2024/12/01 〜 2025/06/30</td><td>¥430,000</td><td>¥16,700</td><td><span class="st part">利用中（満了間近）</span></td></tr>
               </tbody>
-              <tfoot><tr><td colspan="4">運用：6か月ごとに 解約 → 次の6か月を新規契約（本製品のみの特殊販売）</td><td>次期：更新提案候補</td></tr></tfoot>
+              <tfoot><tr><td colspan="5">運用：6か月ごとに 解約 → 次の6か月を新規契約（メニューデザイナーNEXTのみの特殊販売）</td><td>次期：更新提案候補</td></tr></tfoot>
             </table>
-            <p class="legend">阪食品サンプル反映：<b>メニューデザイナーNEXTのみ6か月限定ライセンス</b>。レンタル期間を<b>5年ではなく6か月</b>で自動算出し、満了時に<b>解約→次の6か月を再契約</b>。各期を履歴(子レコード)で残し、満了間近で更新提案を抽出します。</p>
+            <p class="legend">実データ反映：受注内容欄に「NEXT10式6カ月限定ライセンス 2023/12/1〜2024/5/31」のように<b>期間が明記</b>され、各期が<b>別受注NO</b>で繰り返されています。レンタル期間を6か月で算出し、満了時に解約→次期を再契約。各期を子レコードで保持。</p>
           </div>
         </div>
       </div>
 
-      <!-- 04 サービス管理（推奨Yの見え方）-->
+      <!-- サービス管理（実データ：受注NO欄に「サービス管理」と記載 / データ変換 ¥120,000）-->
       <div class="contract kind-svc">
         <div class="contract-head">
-          <span class="seq">04</span>
-          <span class="sys">受発注データ CSV変換・取込（年次）</span>
+          <span class="seq">S</span>
+          <span class="sys">データ変換（関西・成分値3件 再取込）</span>
           <span class="badge k-svc">サービス管理</span>
           <span class="badge active">対応中</span>
-          <span class="right">商談：OPP-2026-0233／受注 2026/06/10</span>
+          <span class="right">受注NO「サービス管理」／受注 2023/10/23</span>
         </div>
         <div class="contract-body">
           <div class="field"><label>受注区分</label><div class="val">サービス管理</div></div>
-          <div class="field"><label>サービス内容</label><div class="val">データ変換</div></div>
-          <div class="field"><label>受注日</label><div class="val">2026/06/10</div></div>
+          <div class="field"><label>対象製品</label><div class="val">メニューデザイナー NEXT</div></div>
+          <div class="field"><label>受注金額</label><div class="val">¥120,000</div></div>
+          <div class="field"><label>支払方法</label><div class="val">現金</div></div>
           <div class="field"><label>検収完了日（＝売上計上日）</label><div class="val">— <span class="pill tmp">未検収</span></div></div>
-          <div class="field"><label>レンタル期間</label><div class="val">対象外</div></div>
           <div class="dc-wrap">
-            <div class="dc-title">対応・検収履歴 <span class="mini">サービス管理＝軽微改修/データ変換</span></div>
+            <div class="dc-title">対応・検収履歴 <span class="mini">サービス管理＝データ変換/PG改造など小規模対応</span></div>
             <table class="dc">
-              <thead><tr><th>#</th><th>区分</th><th>対応日</th><th>検収日</th><th>対象</th><th>ステータス</th></tr></thead>
+              <thead><tr><th>#</th><th>内容</th><th>対応日</th><th>検収日</th><th>対象</th><th>ステータス</th></tr></thead>
               <tbody>
-                <tr><td>1</td><td>データ変換</td><td>2026/06/20</td><td>—</td><td>受発注CSV 1式</td><td><span class="st wait">検収待ち</span></td></tr>
+                <tr><td>1</td><td>データ変換（成分値再取込）</td><td>2023/10/23</td><td>—</td><td>関西・成分値 3件</td><td><span class="st wait">検収待ち</span></td></tr>
               </tbody>
             </table>
-            <p class="legend">推奨Y：パッケージ/カスタマイズと<b>同一オブジェクト</b>で、受注区分「サービス管理」として括る。レンタル期間・ライセンスは対象外で非表示、売上は検収完了日で計上。</p>
+            <p class="legend">実データ反映：旧台帳では受注NO欄に<b>「サービス管理」と直接記載</b>（数値の受注NOではない）。Salesforceでは<b>受注区分「サービス管理」</b>で明示化し、パッケージ/カスタマイズと同一オブジェクトに括ります。</p>
           </div>
         </div>
       </div>
 
-      <!-- 02 カスタマイズ（推奨Aの見え方）/ 大型・分割検収 -->
+      <!-- カスタマイズ（実データ：24580 NEXTカスタマイズ OBIC7データ取込 ¥3,360,000 + 内容明細）-->
       <div class="contract kind-custom">
         <div class="contract-head">
-          <span class="seq">02</span>
-          <span class="sys">勤怠管理 ATTEND 機能カスタマイズ一式</span>
+          <span class="seq">C</span>
+          <span class="sys">NEXTカスタマイズ OBIC7データ取込</span>
           <span class="badge k-custom">カスタマイズ</span>
-          <span class="badge active">利用中</span>
-          <span class="right">商談：OPP-2025-0412／受注 2025/04/01</span>
+          <span class="badge active">検収済</span>
+          <span class="right">受注NO 24580／受注 2023/06/22</span>
         </div>
         <div class="contract-body">
           <div class="field"><label>受注区分</label><div class="val">カスタマイズ</div></div>
-          <div class="field"><label>カスタマイズ件名</label><div class="val">勤怠連携・帳票改修 一式</div></div>
-          <div class="field"><label>受注日</label><div class="val">2025/04/01</div></div>
-          <div class="field"><label>検収完了日（＝売上計上日）</label><div class="val">2025/09/12 <span class="pill fix">確定</span></div></div>
-          <div class="field"><label>レンタル期間</label><div class="val">対象外</div></div>
+          <div class="field"><label>対象製品</label><div class="val">メニューデザイナー NEXT</div></div>
+          <div class="field"><label>受注金額</label><div class="val">¥3,360,000</div></div>
+          <div class="field"><label>支払方法</label><div class="val">現金</div></div>
+          <div class="field"><label>検収完了日（＝売上計上日）</label><div class="val">確定 <span class="pill fix">確定</span></div></div>
 
-          <!-- カスタマイズ内容明細（分割検収）-->
           <div class="dc-wrap">
-            <div class="dc-title">カスタマイズ内容・検収明細 <span class="mini">推奨A：内容を明細(子)で保持</span> <span class="mini">大型→分割検収あり</span>
+            <div class="dc-title">カスタマイズ内容明細 <span class="mini">推奨A：内容を明細(子)で保持</span>
               <button class="btn neutral sm" style="margin-left:auto" onclick="document.getElementById('dcModal').hidden=false">＋ 内容/検収を記録</button>
             </div>
             <table class="dc">
-              <thead><tr><th>#</th><th>カスタマイズ内容</th><th>納品日</th><th>検収日</th><th>対象/工数</th><th>ステータス</th></tr></thead>
+              <thead><tr><th>#</th><th>カスタマイズ内容</th><th>区分</th><th>ステータス</th></tr></thead>
               <tbody>
-                <tr><td>1</td><td>勤怠データ連携API開発</td><td>2025/07/31</td><td>2025/08/05</td><td>20人日</td><td><span class="st done">検収済</span></td></tr>
-                <tr><td>2</td><td>勤務表 帳票レイアウト改修</td><td>2025/09/01</td><td>2025/09/12</td><td>8人日</td><td><span class="st done">検収済</span></td></tr>
-                <tr><td>3</td><td>残業集計ロジック追加</td><td>2025/09/01</td><td>—</td><td>5人日</td><td><span class="st part">分割検収待ち</span></td></tr>
+                <tr><td>1</td><td>OBIC7 データ取込開発</td><td>開発</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>2</td><td>仕様打ち合わせ</td><td>支援</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>3</td><td>システムインストール</td><td>導入</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>4</td><td>データ移行</td><td>移行</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>5</td><td>MA設定支援</td><td>支援</td><td><span class="st done">検収済</span></td></tr>
               </tbody>
-              <tfoot><tr><td colspan="4">合計（カスタマイズ受注の単位）</td><td>33人日</td><td>2/3 検収済</td></tr></tfoot>
+              <tfoot><tr><td colspan="3">合計（カスタマイズ受注の単位）</td><td>5/5 検収済</td></tr></tfoot>
             </table>
-            <p class="legend">推奨A：1カスタマイズ受注＝1レコードに集約し、機能/工程を<b>内容明細(子)</b>で時系列管理。大型案件の<b>分割検収（A1）</b>は明細行ごとに検収日を持たせて対応。</p>
+            <p class="legend">実データ反映：1カスタマイズ受注に<b>内容明細が縦に複数</b>（旧台帳の受注内容欄）。推奨A（1受注=1レコード＋内容明細(子)）で時系列管理。大型案件は明細ごとに検収日を持たせ<b>分割検収</b>に対応。</p>
           </div>
         </div>
       </div>
 
-      <!-- 01 パッケージ / 満了間近 / 一括・検収済 -->
+      <!-- パッケージ基盤（実データ：24815 メニューデザイナーNEXT 35式 ¥16,800,000 + カスタマイズ明細 + ソフト保守）-->
       <div class="contract kind-pkg">
         <div class="contract-head">
-          <span class="seq">01</span>
-          <span class="sys">販売管理システム SALES-PRO</span>
-          <span class="badge k-pkg">パッケージ</span>
-          <span class="badge soon">満了間近</span>
-          <span class="right">商談：OPP-2020-0915／受注 2020/10/01</span>
-        </div>
-        <div class="contract-body">
-          <div class="field"><label>受注区分</label><div class="val">パッケージ</div></div>
-          <div class="field"><label>システム名</label><div class="val">販売管理システム SALES-PRO</div></div>
-          <div class="field"><label>ライセンス数</label><div class="val">15</div></div>
-          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2020/11/20 <span class="pill fix">確定</span></div></div>
-          <div class="field"><label>レンタル期間（自動）</label><div class="val">2020/11/20 〜 2025/11/19</div></div>
-          <div class="rental-bar-wrap">
-            <div class="rental-bar soon"><span style="width:90%"></span></div>
-            <div class="rental-meta"><span>研修日 2020/11/20</span><span>残り約5ヶ月（更新提案候補）</span><span>満了 2025/11/19</span></div>
-          </div>
-          <div class="dc-wrap">
-            <div class="dc-title">納品・検収履歴 <span class="mini">一括</span></div>
-            <table class="dc">
-              <thead><tr><th>#</th><th>区分</th><th>納品日</th><th>検収日</th><th>数量/対象</th><th>ステータス</th></tr></thead>
-              <tbody>
-                <tr><td>1</td><td>一括納品</td><td>2020/11/20</td><td>2020/11/20</td><td>15式</td><td><span class="st done">検収済</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 03 パッケージ / 受注直後 / 研修日仮・検収待ち -->
-      <div class="contract kind-pkg">
-        <div class="contract-head">
-          <span class="seq">03</span>
-          <span class="sys">在庫管理システム STOCK-NEO</span>
+          <span class="seq">P</span>
+          <span class="sys">メニューデザイナー NEXT 35式（基盤導入）</span>
           <span class="badge k-pkg">パッケージ</span>
           <span class="badge active">利用中</span>
-          <span class="right">商談：OPP-2026-0188／受注 2026/06/01</span>
+          <span class="right">受注NO 24815／受注 2023/04/05</span>
         </div>
         <div class="contract-body">
           <div class="field"><label>受注区分</label><div class="val">パッケージ</div></div>
-          <div class="field"><label>システム名</label><div class="val">在庫管理システム STOCK-NEO</div></div>
-          <div class="field"><label>ライセンス数</label><div class="val">10</div></div>
-          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2026/07/10 <span class="pill tmp">仮</span></div></div>
-          <div class="field"><label>レンタル期間（自動）</label><div class="val">研修日確定後に算出</div></div>
+          <div class="field"><label>対象製品</label><div class="val">メニューデザイナー NEXT</div></div>
+          <div class="field"><label>ライセンス数</label><div class="val">35式</div></div>
+          <div class="field"><label>受注金額</label><div class="val">¥16,800,000</div></div>
+          <div class="field"><label>支払方法</label><div class="val">現金</div></div>
+          <div class="field"><label>ソフトウェア保守（年額）</label><div class="val">¥93,500 <span class="pill fix">契約中</span></div></div>
+          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2023/04 <span class="pill fix">確定</span></div></div>
           <div class="dc-wrap">
-            <div class="dc-title">納品・検収履歴 <span class="mini">検収待ち＝売上未計上</span></div>
+            <div class="dc-title">カスタマイズ内容明細（基盤に含む） <span class="mini">推奨A：内容を明細(子)で保持</span></div>
             <table class="dc">
-              <thead><tr><th>#</th><th>区分</th><th>納品日</th><th>検収日</th><th>数量/対象</th><th>ステータス</th></tr></thead>
+              <thead><tr><th>#</th><th>カスタマイズ内容</th><th>ステータス</th></tr></thead>
               <tbody>
-                <tr><td>1</td><td>初回納品</td><td>2026/06/28</td><td>—</td><td>10式</td><td><span class="st wait">検収待ち</span></td></tr>
+                <tr><td>1</td><td>献立／発注／マスタ／仕入（・献/発/マ/仕）</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>2</td><td>オリジナル帳票</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>3</td><td>メニューアシスタント</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>4</td><td>インフォ連携</td><td><span class="st done">検収済</span></td></tr>
+                <tr><td>5</td><td>カスタマイズ（個別）</td><td><span class="st done">検収済</span></td></tr>
               </tbody>
             </table>
+            <p class="legend">実データ反映：基盤パッケージ（NEXT35式）に<b>カスタマイズ明細が同梱</b>。<b>ソフトウェア保守 ¥93,500/年</b>が受注に紐づく（保守は継続収益として保持）。支払方法・対象製品も項目化。</p>
           </div>
         </div>
       </div>
 
-      <!-- 解約済み -->
-      <div class="contract ended">
-        <div class="contract-head">
-          <span class="seq">—</span>
-          <span class="sys">旧・基幹システム LEGACY</span>
-          <span class="badge k-pkg">パッケージ</span>
-          <span class="badge ended">解約済み</span>
-          <span class="right">商談：OPP-2019-0601／解約 2024/03/31</span>
-        </div>
-        <div class="contract-body">
-          <div class="field"><label>受注区分</label><div class="val">パッケージ</div></div>
-          <div class="field"><label>システム名</label><div class="val">基幹システム LEGACY</div></div>
-          <div class="field"><label>ライセンス数</label><div class="val">0（解約時 −10）</div></div>
-          <div class="field"><label>研修日（＝売上計上日）</label><div class="val">2019/07/10 <span class="pill fix">確定</span></div></div>
-          <div class="field"><label>解約日</label><div class="val">2024/03/31</div></div>
-        </div>
-      </div>
-
-      <p class="legend">※ 01 / 02 … は同一取引先内の受注連番（受注商談単位）。新しい受注ほど上に積み上がります。受注区分で表示項目を出し分け、各受注の下に納品・検収（またはカスタマイズ内容）を時系列で保持。差し戻しは扱わず、大型カスタマイズのみ分割検収を明細で管理します。</p>
+      <p class="legend">※ 同一取引先（名阪食品）内の受注を新しい順に積み上げ。受注区分で表示項目を出し分け、各受注の下にカスタマイズ内容・保守・検収を時系列で保持。<b>6か月限定ライセンスは各期=別受注</b>として解約→再契約を履歴管理、<b>サービス管理</b>は旧台帳の「サービス管理」表記を区分化。実データ（名阪食品ユーザー履歴）を反映。</p>
     </div>
   </div>
 
@@ -444,16 +399,24 @@
           </select>
         </div>
         <div>
-          <label>受注連番</label>
-          <input type="text" value="05（自動採番）" readonly>
+          <label>対象製品 <span style="color:#8a8a8a;">（区分フラグ）</span></label>
+          <select><option>メニューデザイナーNEXT</option><option>ソフトメリット</option><option>メニューリンク</option></select>
         </div>
         <div class="full">
           <label>件名 / システム名 <span class="req">*</span></label>
-          <input type="text" placeholder="例：勤怠管理システム ATTEND ／ 帳票改修一式 ／ データ変換">
+          <input type="text" placeholder="例：メニューデザイナーNEXT 35式 ／ NEXTカスタマイズ OBIC7取込 ／ データ変換">
         </div>
         <div>
-          <label>ライセンス数 <span style="color:#8a8a8a;">（パッケージのみ）</span></label>
+          <label>ライセンス数（式） <span style="color:#8a8a8a;">（パッケージのみ）</span></label>
           <input type="number" value="10">
+        </div>
+        <div>
+          <label>支払方法</label>
+          <select><option>現金</option><option>リース</option><option>SOLPAL（クレジット引落）</option></select>
+        </div>
+        <div>
+          <label>ソフトウェア保守（年額・円）</label>
+          <input type="number" placeholder="例：93500">
         </div>
         <div>
           <label>受注日 <span class="req">*</span></label>
